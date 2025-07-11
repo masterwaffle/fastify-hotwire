@@ -11,7 +11,10 @@ declare module 'fastify' {
       prepend(file: string, target: string, data: any): Promise<string>
       replace(file: string, target: string, data: any): Promise<string>
       update(file: string, target: string, data: any): Promise<string>
-      remove(file: null, target: string, data: any): Promise<string>
+      remove(file: string, target: string): Promise<string>
+      before(file: string, target: string, data: any): Promise<string>
+      after(file: string, target: string, data: any): Promise<string>
+      refresh(): Promise<string>
     }
 
     turboStream: {
@@ -19,7 +22,10 @@ declare module 'fastify' {
       prepend(file: string, target: string, data: any): FastifyReply
       replace(file: string, target: string, data: any): FastifyReply
       update(file: string, target: string, data: any): FastifyReply
-      remove(file: null, target: string, data: any): FastifyReply
+      remove(file: string, target: string): FastifyReply
+      before(file: string, target: string, data: any): FastifyReply
+      after(file: string, target: string, data: any): FastifyReply
+      refresh(): FastifyReply
     }
   }
 }

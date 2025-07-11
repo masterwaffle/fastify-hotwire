@@ -53,13 +53,13 @@ function runTurboStream (action) {
       path: '/'
     })
 
-
-    const expectedResponseWithTemplate =  `<turbo-stream action="${action}" target="messages">    <template><turbo-frame id="message_frame_unique"><p><strong>foobar:</strong> hello world</p>  <form action="/message/unique/delete" method="POST"><button type="submit">Remove</button></form></turbo-frame></template>  </turbo-stream>`
-    const expectedResponceWithoutTemplate = `<turbo-stream action="${action}" target="messages">      </turbo-stream>`
+    const expectedResponseWithTemplate = `<turbo-stream action="${action}" target="messages">    <template><turbo-frame id="message_frame_unique"><p><strong>foobar:</strong> hello world</p>  <form action="/message/unique/delete" method="POST"><button type="submit">Remove</button></form></turbo-frame></template>  </turbo-stream>`
+    const expectedResponseWithoutTemplate = `<turbo-stream action="${action}" target="messages">      </turbo-stream>`
+    const expectedResponseWithoutTemplateOrTarget = `<turbo-stream action="${action}" >      </turbo-stream>`
 
     t.assert.strictEqual(response.statusCode, 200)
     t.assert.strictEqual(response.headers['content-type'], 'text/vnd.turbo-stream.html; charset=utf-8')
-    t.assert.strictEqual(response.payload.replace(/\n/g, '').trim(), action != 'remove' ? expectedResponseWithTemplate : expectedResponceWithoutTemplate)
+    t.assert.strictEqual(response.payload.replace(/\n/g, '').trim(), action === 'refresh' ? expectedResponseWithoutTemplateOrTarget : (action === 'remove' ? expectedResponseWithoutTemplate: expectedResponseWithTemplate))
   })
 }
 
@@ -90,17 +90,18 @@ function runTurboGenerate (action) {
       method: 'GET',
       path: '/'
     })
-    
-    const expectedResponseWithTemplate =  `<turbo-stream action="${action}" target="messages">    <template><turbo-frame id="message_frame_unique"><p><strong>foobar:</strong> hello world</p>  <form action="/message/unique/delete" method="POST"><button type="submit">Remove</button></form></turbo-frame></template>  </turbo-stream>`
-    const expectedResponceWithoutTemplate = `<turbo-stream action="${action}" target="messages">      </turbo-stream>`
+
+    const expectedResponseWithTemplate = `<turbo-stream action="${action}" target="messages">    <template><turbo-frame id="message_frame_unique"><p><strong>foobar:</strong> hello world</p>  <form action="/message/unique/delete" method="POST"><button type="submit">Remove</button></form></turbo-frame></template>  </turbo-stream>`
+    const expectedResponseWithoutTemplate = `<turbo-stream action="${action}" target="messages">      </turbo-stream>`
+    const expectedResponseWithoutTemplateOrTarget = `<turbo-stream action="${action}" >      </turbo-stream>`
 
     t.assert.strictEqual(response.statusCode, 200)
     t.assert.strictEqual(response.headers['content-type'], 'text/plain')
-    t.assert.strictEqual(response.payload, action != 'remove' ? expectedResponseWithTemplate : expectedResponceWithoutTemplate)
+    t.assert.strictEqual(response.payload, action === 'refresh' ? expectedResponseWithoutTemplateOrTarget : (action === 'remove' ? expectedResponseWithoutTemplate : expectedResponseWithTemplate))
   })
 }
 
-const actions = ['append', 'prepend', 'replace', 'update', 'remove']
+const actions = ['append', 'prepend', 'replace', 'update', 'remove', 'before', 'after', 'refresh']
 for (const action of actions) {
   runTurboStream(action)
   runTurboGenerate(action)

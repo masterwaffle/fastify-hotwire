@@ -53,7 +53,7 @@ fastify.get('/', async (req, reply) => {
 
 ### `reply.turboGenerate.*(filename, target, data)`
 
-Every turbo stream action is supported: `append`, `prepend`, `replace`, `update`, `remove`.
+Every turbo stream action is supported: `append`, `prepend`, `replace`, `update`, `remove`, `before`, `after`, `refresh`.
 It generates and returns a turbo compatible fragment.
 
 ```js

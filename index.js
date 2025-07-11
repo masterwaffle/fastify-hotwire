@@ -18,7 +18,10 @@ async function fastifyHotwire (fastify, opts) {
         prepend: (file, target, data) => turboSend(this, 'prepend', file, target, data),
         replace: (file, target, data) => turboSend(this, 'replace', file, target, data),
         update: (file, target, data) => turboSend(this, 'update', file, target, data),
-        remove: (file, target, data) => turboSend(this, 'remove', null, target)
+        remove: (file, target, data) => turboSend(this, 'remove', null, target),
+        before: (file, target, data) => turboSend(this, 'before', file, target, data),
+        after: (file, target, data) => turboSend(this, 'after', file, target, data),
+        refresh: (file, target, data) => turboSend(this, 'refresh')
       }
     }
   })
@@ -29,7 +32,10 @@ async function fastifyHotwire (fastify, opts) {
         prepend: (file, target, data) => generate(this, 'prepend', file, target, data),
         replace: (file, target, data) => generate(this, 'replace', file, target, data),
         update: (file, target, data) => generate(this, 'update', file, target, data),
-        remove: (file, target, data) => generate(this, 'remove', null, target)
+        remove: (file, target, data) => generate(this, 'remove', null, target),
+        before: (file, target, data) => generate(this, 'before', file, target, data),
+        after: (file, target, data) => generate(this, 'after', file, target, data),
+        refresh: (file, target, data) => generate(this, 'refresh')
       }
     }
   })
@@ -52,16 +58,18 @@ async function fastifyHotwire (fastify, opts) {
   async function generate (that, action, file, target, data) {
     const html =
       action !== 'remove' &&
+      action !== 'refresh' &&
         (await pool.runTask({ file: join(templates, file), data, fragment: true }))
     return buildStream(action, target, html).replace(/\n/g, '').trim()
   }
 }
 
 function buildStream (action, target, content) {
+  const targetAttribute = target ? `target="${target}"` : ''
   const templateHtml = content ? `<template>${content}</template>` : ''
 
   return `
-  <turbo-stream action="${action}" target="${target}">
+  <turbo-stream action="${action}" ${targetAttribute}>
     ${templateHtml}
   </turbo-stream>
   `
