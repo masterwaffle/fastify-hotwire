@@ -18,7 +18,7 @@ async function fastifyHotwire (fastify, opts) {
         prepend: (file, target, data) => turboSend(this, 'prepend', file, target, data),
         replace: (file, target, data) => turboSend(this, 'replace', file, target, data),
         update: (file, target, data) => turboSend(this, 'update', file, target, data),
-        remove: (file, target, data) => turboSend(this, 'remove', file, target, data)
+        remove: (file, target, data) => turboSend(this, 'remove', null, target)
       }
     }
   })
@@ -29,7 +29,7 @@ async function fastifyHotwire (fastify, opts) {
         prepend: (file, target, data) => generate(this, 'prepend', file, target, data),
         replace: (file, target, data) => generate(this, 'replace', file, target, data),
         update: (file, target, data) => generate(this, 'update', file, target, data),
-        remove: (file, target, data) => generate(this, 'remove', file, target, data)
+        remove: (file, target, data) => generate(this, 'remove', null, target)
       }
     }
   })
@@ -43,26 +43,28 @@ async function fastifyHotwire (fastify, opts) {
   }
 
   async function turboSend (that, action, file, target, data) {
-    const html = await pool.runTask({ file: join(templates, file), data, fragment: true })
+    const html = await generate(that, action, file, target, data)
     that.type('text/vnd.turbo-stream.html; charset=utf-8')
-    that.send(buildStream(action, target, html.trim()))
+    that.send(html)
     return that
   }
 
-  async function generate (_that, action, file, target, data) {
-    const html = await pool.runTask({ file: join(templates, file), data, fragment: true })
+  async function generate (that, action, file, target, data) {
+    const html =
+      action !== 'remove' &&
+        (await pool.runTask({ file: join(templates, file), data, fragment: true }))
     return buildStream(action, target, html).replace(/\n/g, '').trim()
   }
 }
 
 function buildStream (action, target, content) {
+  const templateHtml = content ? `<template>${content}</template>` : ''
+
   return `
   <turbo-stream action="${action}" target="${target}">
-    <template>
-      ${content}
-    </template>
+    ${templateHtml}
   </turbo-stream>
-`
+  `
 }
 
 module.exports = fp(fastifyHotwire, {
